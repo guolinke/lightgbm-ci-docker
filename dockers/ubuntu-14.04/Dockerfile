@@ -41,13 +41,15 @@ RUN curl -sL https://cmake.org/files/v3.14/cmake-3.14.1-Linux-x86_64.sh -o cmake
  && rm cmake.sh
 
 # Install Java
-RUN add-apt-repository ppa:openjdk-r/ppa -y \
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9 \
+ && add-apt-repository "deb http://repos.azulsystems.com/ubuntu stable main" -y \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-    openjdk-8-jdk \
+    zulu-8 \
  && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+ENV JAVA_HOME_8_X64=/usr/lib/jvm/zulu-8-amd64
+ENV JAVA_HOME=$JAVA_HOME_8_X64
 
 # Install SWIG
 RUN curl -sL https://downloads.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz -o swig.tar.gz \
@@ -77,4 +79,3 @@ RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/* \
  && rm -rf /tmp/*
- 
