@@ -32,6 +32,8 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y \
  && apt-get install -y --no-install-recommends \
     clang-8 \
     libomp-8-dev \
+ && update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-8 100 \
+ && update-alternatives --install /usr/bin/clang clang /usr/bin/clang-8 100 \
  && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
