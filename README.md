@@ -1,2 +1,2 @@
 # lightgbm-ci-docker
-This is the docker for LightGBM CI
+This is the docker for LightGBM CI (dev branch)
