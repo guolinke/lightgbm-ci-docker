@@ -88,6 +88,7 @@ RUN add-apt-repository \
         -y \
             r-base-dev=3.6.1-3trusty2 \
             pandoc \
+            texinfo \
             texlive-latex-recommended \
             texlive-fonts-recommended \
             texlive-fonts-extra \
