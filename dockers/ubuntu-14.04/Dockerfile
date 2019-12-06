@@ -23,21 +23,21 @@ RUN apt-get update \
     build-essential \
  && rm -rf /var/lib/apt/lists/*
 
-# Install clang 8.0
+# Install clang 9.0
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y \
  && cd /tmp \
  && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
- && add-apt-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-8 main" -y \
+ && add-apt-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-9 main" -y \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-    clang-8 \
-    libomp-8-dev \
- && update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-8 100 \
- && update-alternatives --install /usr/bin/clang clang /usr/bin/clang-8 100 \
+    clang-9 \
+    libomp-9-dev \
+ && update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-9 100 \
+ && update-alternatives --install /usr/bin/clang clang /usr/bin/clang-9 100 \
  && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
-RUN curl -sL https://cmake.org/files/v3.15/cmake-3.15.3-Linux-x86_64.sh -o cmake.sh \
+RUN curl -sL https://cmake.org/files/v3.16/cmake-3.16.0-Linux-x86_64.sh -o cmake.sh \
  && chmod +x cmake.sh \
  && ./cmake.sh --prefix=/usr/local --exclude-subdir \
  && rm cmake.sh
