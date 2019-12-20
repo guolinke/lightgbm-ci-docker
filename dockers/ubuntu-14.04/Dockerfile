@@ -23,24 +23,29 @@ RUN apt-get update \
     build-essential \
  && rm -rf /var/lib/apt/lists/*
 
-# Install clang 8.0
-RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y \
- && cd /tmp \
- && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
- && add-apt-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-8 main" -y \
- && apt-get update \
- && apt-get install -y --no-install-recommends \
-    clang-8 \
-    libomp-8-dev \
- && update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-8 100 \
- && update-alternatives --install /usr/bin/clang clang /usr/bin/clang-8 100 \
- && rm -rf /var/lib/apt/lists/*
-
 # Install CMake
 RUN curl -sL https://cmake.org/files/v3.16/cmake-3.16.0-Linux-x86_64.sh -o cmake.sh \
  && chmod +x cmake.sh \
  && ./cmake.sh --prefix=/usr/local --exclude-subdir \
  && rm cmake.sh
+
+# Install clang 9.0
+RUN curl -sL https://releases.llvm.org/9.0.0/clang%2bllvm-9.0.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz -o clang.tar.xz \
+ && tar -C /usr/local -xf clang.tar.xz --strip 1 \
+ && curl -sL https://releases.llvm.org/9.0.0/openmp-9.0.0.src.tar.xz -o openmp.tar.xz \
+ && tar -xf openmp.tar.xz \
+ && cd openmp-9.0.0.src \
+ && mkdir build \
+ && cd build \
+ && cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang .. \
+ && make \
+ && make install \
+ && echo /usr/local/lib > /etc/ld.so.conf.d/openmp.conf \
+ && ldconfig \
+ && cd ../.. \
+ && rm clang.tar.xz \
+ && rm openmp.tar.xz \
+ && rm -rf openmp-9.0.0.src
 
 # Install Java
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9 \
