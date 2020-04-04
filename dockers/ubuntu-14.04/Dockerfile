@@ -24,17 +24,18 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
-RUN curl -sL https://cmake.org/files/v3.16/cmake-3.16.0-Linux-x86_64.sh -o cmake.sh \
+RUN curl -sL https://cmake.org/files/v3.17/cmake-3.17.0-Linux-x86_64.sh -o cmake.sh \
  && chmod +x cmake.sh \
  && ./cmake.sh --prefix=/usr/local --exclude-subdir \
  && rm cmake.sh
 
-# Install clang 9.0
-RUN curl -sL https://releases.llvm.org/9.0.0/clang%2bllvm-9.0.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz -o clang.tar.xz \
+# Install clang
+ARG CLANG_VER=9.0.0
+RUN curl -sL https://releases.llvm.org/$CLANG_VER/clang%2bllvm-$CLANG_VER-x86_64-linux-gnu-ubuntu-14.04.tar.xz -o clang.tar.xz \
  && tar -C /usr/local -xf clang.tar.xz --strip 1 \
- && curl -sL https://releases.llvm.org/9.0.0/openmp-9.0.0.src.tar.xz -o openmp.tar.xz \
+ && curl -sL https://releases.llvm.org/$CLANG_VER/openmp-$CLANG_VER.src.tar.xz -o openmp.tar.xz \
  && tar -xf openmp.tar.xz \
- && cd openmp-9.0.0.src \
+ && cd openmp-$CLANG_VER.src \
  && mkdir build \
  && cd build \
  && cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang .. \
@@ -45,7 +46,7 @@ RUN curl -sL https://releases.llvm.org/9.0.0/clang%2bllvm-9.0.0-x86_64-linux-gnu
  && cd ../.. \
  && rm clang.tar.xz \
  && rm openmp.tar.xz \
- && rm -rf openmp-9.0.0.src
+ && rm -rf openmp-$CLANG_VER.src
 
 # Install Java
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9 \
@@ -91,7 +92,7 @@ RUN add-apt-repository \
     && apt-get install \
         --no-install-recommends \
         -y \
-            r-base-dev=3.6.1-3trusty2 \
+            r-base-dev=3.6.3-1trusty \
             pandoc \
             texinfo \
             texlive-latex-recommended \
