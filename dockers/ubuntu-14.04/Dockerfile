@@ -82,24 +82,6 @@ RUN curl -sL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.
 
 ENV CONDA=/opt/conda/
 
-# Install R
-RUN add-apt-repository \
-        "deb https://cloud.r-project.org/bin/linux/ubuntu trusty-cran35/" \
-    && apt-key adv \
-        --keyserver keyserver.ubuntu.com \
-        --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 \
-    && apt-get update \
-    && apt-get install \
-        --no-install-recommends \
-        -y \
-            r-base-dev=3.6.3-1trusty \
-            pandoc \
-            texinfo \
-            texlive-latex-recommended \
-            texlive-fonts-recommended \
-            texlive-fonts-extra \
-            qpdf
-
 # Clean system
 RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
