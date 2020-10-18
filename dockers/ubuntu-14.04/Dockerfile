@@ -14,7 +14,7 @@ RUN curl -sL https://packagecloud.io/install/repositories/computology/apt-backpo
  && apt-get update \
  && apt-get install -y --no-install-recommends \
     apt=1.2.10 \
- && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/preferences.d/*
 
 # Install basic command-line utilities and essential build tools
