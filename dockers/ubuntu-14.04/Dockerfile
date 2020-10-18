@@ -132,7 +132,7 @@ RUN apt-get clean \
 
 WORKDIR /vsts
 
-COPY ../start.sh .
+COPY ./start.sh .
 RUN chmod +x start.sh
 
 CMD ["./start.sh"]
