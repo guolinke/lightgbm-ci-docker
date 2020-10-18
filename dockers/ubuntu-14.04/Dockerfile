@@ -4,18 +4,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    curl \
-    libcurl3 \
     software-properties-common \
  && rm -rf /var/lib/apt/lists/*
-
-# Trusty needs an updated backport of apt to avoid hash sum mismatch errors
-#RUN curl -sL https://packagecloud.io/install/repositories/computology/apt-backport/script.deb.sh | bash \
-# && apt-get update \
-# && apt-get install -y --no-install-recommends \
-#    apt=1.2.10 \
-# && rm -rf /var/lib/apt/lists/* \
-# && rm -rf /etc/apt/preferences.d/*
 
 # Install basic command-line utilities and essential build tools
 RUN add-apt-repository ppa:git-core/ppa -y \
@@ -28,6 +18,7 @@ RUN add-apt-repository ppa:git-core/ppa -y \
     git \
     iputils-ping \
     jq \
+    libcurl3 \
     libicu52 \
     libssl1.0 \
     libunwind8 \
