@@ -13,11 +13,14 @@ RUN add-apt-repository ppa:git-core/ppa -y \
  && apt-get install -y --no-install-recommends \
     apt-utils \
     build-essential \
+    ca-certificates \
     curl \
     git \
+    iputils-ping \
     jq \
     libcurl3 \
     libicu52 \
+    libssl1.0 \
     libunwind8 \
     locales \
     netcat \
