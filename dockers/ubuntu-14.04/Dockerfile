@@ -1,8 +1,11 @@
 FROM ubuntu:14.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     curl \
+    libcurl3 \
     software-properties-common \
  && rm -rf /var/lib/apt/lists/*
 
@@ -24,7 +27,6 @@ RUN add-apt-repository ppa:git-core/ppa -y \
     git \
     iputils-ping \
     jq \
-    libcurl3 \
     libicu52 \
     libssl1.0 \
     libunwind8 \
@@ -105,8 +107,6 @@ RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/* \
  && rm -rf /tmp/*
-
-ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /vsts
 
