@@ -2,7 +2,7 @@ FROM ubuntu:14.04
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    curl
+    curl \
  && rm -rf /var/lib/apt/lists/*
 
 # Trusty needs an updated backport of apt to avoid hash sum mismatch errors
