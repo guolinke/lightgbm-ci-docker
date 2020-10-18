@@ -3,6 +3,7 @@ FROM ubuntu:14.04
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     curl \
+    software-properties-common \
  && rm -rf /var/lib/apt/lists/*
 
 # Trusty needs an updated backport of apt to avoid hash sum mismatch errors
@@ -29,7 +30,6 @@ RUN add-apt-repository ppa:git-core/ppa -y \
     libunwind8 \
     locales \
     netcat \
-    software-properties-common \
     sudo \
     unzip \
     wget \
