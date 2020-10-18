@@ -1,51 +1,27 @@
 FROM ubuntu:14.04
 
-# To make it easier for build and release pipelines to run apt-get,
-# configure apt to not require confirmation (assume the -y argument by default)
-ENV DEBIAN_FRONTEND=noninteractive
-RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
-
 # Trusty needs an updated backport of apt to avoid hash sum mismatch errors
-RUN [ "trusty" = "trusty" ] \
- && curl -s https://packagecloud.io/install/repositories/computology/apt-backport/script.deb.sh |  bash \
- && apt-get update \
- && apt-get install apt=1.2.10 \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /etc/apt/sources.list.d/* \
- || echo -n
-
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-        software-properties-common \
- && apt-add-repository ppa:git-core/ppa \
+RUN curl -sL https://packagecloud.io/install/repositories/computology/apt-backport/script.deb.sh | bash \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-        apt-utils \
-        curl \
-        git \
-        jq \
-        libcurl3 \
-        libicu52 \
-        libunwind8 \
-        netcat \
- && curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash \
- && apt-get install -y --no-install-recommends git-lfs \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /etc/apt/sources.list.d/*
+    apt=1.2.10 \
+ && rm -rf /var/lib/apt/lists/*
 
-# Accept the TEE EULA
-RUN mkdir -p "/root/.microsoft/Team Foundation/4.0/Configuration/TEE-Mementos" \
- && cd "/root/.microsoft/Team Foundation/4.0/Configuration/TEE-Mementos" \
- && echo '<ProductIdData><eula-14.0 value="true"/></ProductIdData>' > "com.microsoft.tfs.client.productid.xml"
-
-
-
-
-# Install basic command-line utilities
-RUN apt-get update \
+# Install basic command-line utilities and essential build tools
+RUN add-apt-repository ppa:git-core/ppa -y \
+ && apt-get update \
  && apt-get install -y --no-install-recommends \
+    apt-utils \
+    build-essential \
     curl \
+    git \
+    jq \
+    libcurl3 \
+    libicu52 \
+    libunwind8 \
     locales \
+    netcat \
+    software-properties-common \
     sudo \
     unzip \
     wget \
@@ -57,12 +33,6 @@ ENV LANG en_US.UTF-8
 ENV LC_ALL $LANG
 RUN locale-gen $LANG \
  && update-locale
-
-# Install essential build tools
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    build-essential \
- && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
 RUN curl -sL https://cmake.org/files/v3.18/cmake-3.18.1-Linux-x86_64.sh -o cmake.sh \
@@ -117,7 +87,6 @@ RUN curl -sL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.
  && ./miniconda.sh -b -p /opt/conda \
  && rm miniconda.sh \
  && /opt/conda/bin/conda install python=3 -q -y \
- && /opt/conda/bin/conda install mkl qt -q -y \
  && /opt/conda/bin/conda clean -a -y \
  && chmod -R 777 /opt/conda
 
@@ -129,6 +98,7 @@ RUN apt-get clean \
  && rm -rf /etc/apt/sources.list.d/* \
  && rm -rf /tmp/*
 
+ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /vsts
 
