@@ -102,7 +102,7 @@ RUN apt-get clean \
 
 WORKDIR /vsts
 
-COPY ./start-azure.sh .
-RUN chmod +x start-azure.sh
+COPY ./start_azure.sh .
+RUN chmod +x start_azure.sh
 
-CMD ["./start-azure.sh"]
+CMD ["./start_azure.sh"]
