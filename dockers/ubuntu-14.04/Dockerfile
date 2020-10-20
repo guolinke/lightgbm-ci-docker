@@ -1,10 +1,29 @@
-FROM microsoft/vsts-agent:ubuntu-14.04
+FROM ubuntu:14.04
 
-# Install basic command-line utilities
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
+    software-properties-common \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install basic command-line utilities and essential build tools
+RUN add-apt-repository ppa:git-core/ppa -y \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends \
+    apt-utils \
+    build-essential \
+    ca-certificates \
     curl \
+    git \
+    iputils-ping \
+    jq \
+    libcurl3 \
+    libicu52 \
+    libssl1.0 \
+    libunwind8 \
     locales \
+    netcat \
     sudo \
     unzip \
     wget \
@@ -17,14 +36,8 @@ ENV LC_ALL $LANG
 RUN locale-gen $LANG \
  && update-locale
 
-# Install essential build tools
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    build-essential \
- && rm -rf /var/lib/apt/lists/*
-
 # Install CMake
-RUN curl -sL https://cmake.org/files/v3.18/cmake-3.18.1-Linux-x86_64.sh -o cmake.sh \
+RUN curl -sL https://cmake.org/files/v3.18/cmake-3.18.4-Linux-x86_64.sh -o cmake.sh \
  && chmod +x cmake.sh \
  && ./cmake.sh --prefix=/usr/local --exclude-subdir \
  && rm cmake.sh
@@ -76,7 +89,6 @@ RUN curl -sL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.
  && ./miniconda.sh -b -p /opt/conda \
  && rm miniconda.sh \
  && /opt/conda/bin/conda install python=3 -q -y \
- && /opt/conda/bin/conda install mkl qt -q -y \
  && /opt/conda/bin/conda clean -a -y \
  && chmod -R 777 /opt/conda
 
@@ -87,3 +99,10 @@ RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/* \
  && rm -rf /tmp/*
+
+WORKDIR /vsts
+
+COPY ./start_azure.sh .
+RUN chmod +x start_azure.sh
+
+CMD ["./start_azure.sh"]
