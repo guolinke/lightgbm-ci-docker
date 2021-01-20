@@ -73,15 +73,15 @@ ENV JAVA_HOME_8_X64=/usr/lib/jvm/zulu-8-amd64
 ENV JAVA_HOME=$JAVA_HOME_8_X64
 
 # Install SWIG
-RUN curl -sL https://downloads.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz -o swig.tar.gz \
+RUN curl -sL https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4.0.2.tar.gz/download -o swig.tar.gz \
  && tar -xzf swig.tar.gz \
- && cd swig-3.0.12 \
+ && cd swig-4.0.2 \
  && ./configure --prefix=/usr/local --without-pcre \
  && make \
  && make install \
  && cd .. \
  && rm swig.tar.gz \
- && rm -rf swig-3.0.12
+ && rm -rf swig-4.0.2
 
 # Install Miniconda
 RUN curl -sL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh \
