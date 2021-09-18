@@ -1,0 +1,34 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches:
+    - master
+    - dev
+
+jobs:
+  push_to_docker_hub:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2.3.4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1.10.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Extract tag for Docker
+        id: tag
+        shell: bash
+        run: |
+            branch=${GITHUB_REF#refs/heads/}
+            docker_tag=ubuntu-14.04-${branch}
+            docker_tag=${docker_tag%-master}
+            echo "::set-output name=docker_tag::${docker_tag}"
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2.7.0
+        with:
+          context: ${{ github.workspace }}/dockers/ubuntu-14.04/
+          push: true
+          tags: lightgbm/vsts-agent:${{ steps.tag.outputs.docker_tag }}
