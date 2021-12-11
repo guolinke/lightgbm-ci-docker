@@ -37,7 +37,7 @@ RUN locale-gen $LANG \
  && update-locale
 
 # Install CMake
-RUN curl -sL https://cmake.org/files/v3.21/cmake-3.21.3-linux-x86_64.sh -o cmake.sh \
+RUN curl -sL https://cmake.org/files/v3.22/cmake-3.22.0-linux-x86_64.sh -o cmake.sh \
  && chmod +x cmake.sh \
  && ./cmake.sh --prefix=/usr/local --exclude-subdir \
  && rm cmake.sh
@@ -73,7 +73,7 @@ ENV JAVA_HOME_8_X64=/usr/lib/jvm/zulu-8-amd64
 ENV JAVA_HOME=$JAVA_HOME_8_X64
 
 # Install SWIG
-RUN curl -sL https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4.0.2.tar.gz/download -o swig.tar.gz \
+RUN curl -sLk https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4.0.2.tar.gz/download -o swig.tar.gz \
  && tar -xzf swig.tar.gz \
  && cd swig-4.0.2 \
  && ./configure --prefix=/usr/local --without-pcre \
