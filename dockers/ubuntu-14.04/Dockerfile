@@ -73,7 +73,7 @@ ENV JAVA_HOME_8_X64=/usr/lib/jvm/zulu-8-amd64
 ENV JAVA_HOME=$JAVA_HOME_8_X64
 
 # Install SWIG
-RUN curl -sL https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4.0.2.tar.gz/download -o swig.tar.gz \
+RUN curl -sL https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz -o swig.tar.gz \
  && tar -xzf swig.tar.gz \
  && cd swig-4.0.2 \
  && ./configure --prefix=/usr/local --without-pcre \
