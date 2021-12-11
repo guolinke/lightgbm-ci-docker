@@ -37,7 +37,7 @@ RUN locale-gen $LANG \
  && update-locale
 
 # Install CMake
-RUN curl -sL https://cmake.org/files/v3.21/cmake-3.21.3-linux-x86_64.sh -o cmake.sh \
+RUN curl -sL https://cmake.org/files/v3.22/cmake-3.22.0-linux-x86_64.sh -o cmake.sh \
  && chmod +x cmake.sh \
  && ./cmake.sh --prefix=/usr/local --exclude-subdir \
  && rm cmake.sh
