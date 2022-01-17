@@ -1,2 +1,3 @@
 # lightgbm-ci-docker
-This is the docker for LightGBM CI
+
+This project is used to build container images that can be used to test LightGBM in operating systems not supported by continouus integration services.
