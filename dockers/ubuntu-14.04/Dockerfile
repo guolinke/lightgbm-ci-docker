@@ -84,14 +84,14 @@ RUN curl -sLk https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4
  && rm -rf swig-4.0.2
 
 # Install mamba[forge]
-RUN curl -sL "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-$(uname -m).sh" -o mambaforge.sh \
- && chmod +x mambaforge.sh \
- && ./mambaforge.sh -b -p /opt/mamba \
- && rm mambaforge.sh \
- && /opt/mamba/bin/conda clean -a -y \
- && chmod -R 777 /opt/mamba
+RUN curl -sL "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh" -o miniforge.sh \
+ && chmod +x miniforge.sh \
+ && ./miniforge.sh -b -p /opt/miniforge \
+ && rm miniforge.sh \
+ && /opt/miniforge/bin/conda clean -a -y \
+ && chmod -R 777 /opt/miniforge
 
-ENV CONDA=/opt/mamba/
+ENV CONDA=/opt/miniforge/
 
 # Clean system
 RUN apt-get clean \
