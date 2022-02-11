@@ -83,16 +83,15 @@ RUN curl -sLk https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4
  && rm swig.tar.gz \
  && rm -rf swig-4.0.2
 
-# Install Miniconda
-RUN curl -sL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh \
- && chmod +x miniconda.sh \
- && ./miniconda.sh -b -p /opt/conda \
- && rm miniconda.sh \
- && /opt/conda/bin/conda install python=3 -q -y \
- && /opt/conda/bin/conda clean -a -y \
- && chmod -R 777 /opt/conda
+# Install miniforge
+RUN curl -sL "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh" -o miniforge.sh \
+ && chmod +x miniforge.sh \
+ && ./miniforge.sh -b -p /opt/miniforge \
+ && rm miniforge.sh \
+ && /opt/miniforge/bin/conda clean -a -y \
+ && chmod -R 777 /opt/miniforge
 
-ENV CONDA=/opt/conda/
+ENV CONDA=/opt/miniforge/
 
 # Clean system
 RUN apt-get clean \
