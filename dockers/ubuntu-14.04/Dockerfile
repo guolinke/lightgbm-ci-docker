@@ -19,15 +19,20 @@ RUN add-apt-repository ppa:git-core/ppa -y \
     iputils-ping \
     jq \
     libcurl3 \
+    libhwloc-dev \
     libicu52 \
     libssl1.0 \
+    libtinfo-dev \
     libunwind8 \
     locales \
     netcat \
+    ocl-icd-dev \
+    pkg-config \
     sudo \
     unzip \
     wget \
     zip \
+    zlib1g-dev \
  && rm -rf /var/lib/apt/lists/*
 
 # Setup the locale
@@ -60,6 +65,26 @@ RUN curl -sL https://releases.llvm.org/$CLANG_VER/clang%2bllvm-$CLANG_VER-x86_64
  && rm clang.tar.xz \
  && rm openmp.tar.xz \
  && rm -rf openmp-$CLANG_VER.src
+ 
+ # Install PoCL
+RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
+ && cmake \
+    -B pocl/build \
+    -S pocl \
+    -DCMAKE_BUILD_TYPE=release \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_CXX_FLAGS=-stdlib=libc++ \
+    -DPOCL_INSTALL_ICD_VENDORDIR=/etc/OpenCL/vendors \
+    -DPOCL_DEBUG_MESSAGES=OFF \
+    -DSTATIC_LLVM=ON \
+    -DINSTALL_OPENCL_HEADERS=OFF \
+    -DENABLE_SPIR=OFF \
+    -DENABLE_POCLCC=OFF \
+    -DENABLE_TESTS=OFF \
+    -DENABLE_EXAMPLES=OFF \
+ && cmake --build pocl/build -j4 \
+ && cmake --install pocl/build
 
 # Install Java
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9 \
