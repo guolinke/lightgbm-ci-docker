@@ -1,7 +1,7 @@
 FROM quay.io/pypa/manylinux2014_aarch64
 
-RUN yum update
-RUN yum install -y \
+RUN yum update \
+ && yum install -y \
     epel-release \
     gcc-c++ \
     hwloc-devel \
@@ -9,7 +9,8 @@ RUN yum install -y \
  && yum clean all \
  && rm -rf /var/cache/yum
 
-RUN yum install -y \
+RUN yum update \
+ && yum install -y \
     llvm-toolset-7.0-clang-devel \
     llvm-toolset-7.0-llvm-devel \
     ocl-icd-devel \
