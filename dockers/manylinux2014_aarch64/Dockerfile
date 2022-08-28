@@ -9,8 +9,7 @@ RUN yum update \
  && yum clean all \
  && rm -rf /var/cache/yum
 
-RUN yum update \
- && yum install -y \
+RUN yum install -y \
     llvm-toolset-7.0-clang-devel \
     llvm-toolset-7.0-llvm-devel \
     ocl-icd-devel \
