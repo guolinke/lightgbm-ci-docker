@@ -1,7 +1,7 @@
 FROM quay.io/pypa/manylinux2014_aarch64
 
-RUN yum update \
- && yum install -y \
+RUN yum update
+RUN yum install -y \
     epel-release \
     gcc-c++ \
     hwloc-devel \
