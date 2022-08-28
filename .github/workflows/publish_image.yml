@@ -10,6 +10,12 @@ jobs:
   push_to_docker_hub:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - docker_image: ubuntu-14.04
+          - docker_image: manylinux2014_aarch64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -23,12 +29,12 @@ jobs:
         shell: bash
         run: |
             branch=${GITHUB_REF#refs/heads/}
-            docker_tag=ubuntu-14.04-${branch}
+            docker_tag=${{ matrix.docker_image }}-${branch}
             docker_tag=${docker_tag%-master}
             echo "::set-output name=docker_tag::${docker_tag}"
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: ${{ github.workspace }}/dockers/ubuntu-14.04/
+          context: ${{ github.workspace }}/dockers/${{ matrix.docker_image }}/
           push: true
           tags: lightgbm/vsts-agent:${{ steps.tag.outputs.docker_tag }}
