@@ -15,10 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - docker_image: ubuntu-14.04
-            arch: linux/amd64
-          - docker_image: manylinux2014_aarch64
-            arch: linux/arm64
+          # - docker_image: ubuntu-14.04
+          #   arch: linux/amd64
+          # - docker_image: manylinux2014_aarch64
+          #   arch: linux/arm64
           - docker_image: manylinux_2_28_x86_64
             arch: linux/amd64
     steps:
