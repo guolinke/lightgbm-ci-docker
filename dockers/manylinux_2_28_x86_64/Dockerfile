@@ -44,22 +44,41 @@ RUN curl -sL https://cmake.org/files/v3.23/cmake-3.23.1-linux-x86_64.sh -o cmake
  && rm -f ./cmake.sh
 
 # Install clang (NOTE: v11.0.0 requires GLIBC==2.29, too new for this image)
-ARG CLANG_VER=10.0.0
+#ARG CLANG_VER=10.0.0
 
 # RUN yum install -y \
 #     ncurses-devel  # for libtinfo.so
 
+# building clang
 # pre-compiled clang+llvm is not available for AlmaLinux, so build it from source
 # https://clang.llvm.org/get_started.html
+# https://llvm.org/docs/GettingStarted.html#compiling-the-llvm-suite-source-code
+ARG CLANG_VER=14.0.6
 RUN mkdir /usr/local/src/clang \
  && cd /usr/local/src/clang \
  && git clone --depth 1 --branch llvmorg-$CLANG_VER https://github.com/llvm/llvm-project.git \
  && cd llvm-project \
  && mkdir build \
  && cd build \
- && cmake -DLLVM_ENABLE_PROJECTS="clang;openmp" -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" ../llvm \
- && make
+ && cmake \
+     -DCMAKE_BUILD_TYPE=Release \
+     -DLLVM_BUILD_BENCHMARKS=OFF \
+     -DLLVM_BUILD_DOCS=OFF \
+     -DLLVM_BUILD_TESTS=OFF \
+     -DLLVM_INCLUDE_BENCHMARKS=OFF \
+     -DLLVM_INCLUDE_DOCS=OFF \
+     -DLLVM_INCLUDE_TESTS=OFF \
+     -DLLVM_ENABLE_BINDINGS=OFF \
+     -DLLVM_ENABLE_DOXYGEN=OFF \
+     -DLLVM_ENABLE_OCAMLDOC=OFF \
+     -DLLVM_ENABLE_PROJECTS="clang;openmp" \
+     -DLLVM_ENABLE_SPHINX=OFF \
+     -DLLVM_TARGETS_TO_BUILD="X86" \
+     -G "Unix Makefiles" \
+     ../llvm \
+ && make -j2
 
+# ARG CLANG_VER=14.0.0
 # RUN curl -sL https://github.com/llvm/llvm-project/releases/download/llvmorg-$CLANG_VER/clang+llvm-$CLANG_VER-x86_64-linux-gnu-ubuntu-18.04.tar.xz -o clang.tar.xz \
 #  && tar -C /usr/local -xf clang.tar.xz --strip 1 \
 #  && curl -sL https://github.com/llvm/llvm-project/releases/download/llvmorg-$CLANG_VER/openmp-$CLANG_VER.src.tar.xz -o openmp.tar.xz \
@@ -67,7 +86,7 @@ RUN mkdir /usr/local/src/clang \
 #  && cd openmp-$CLANG_VER.src \
 #  && mkdir build \
 #  && cd build \
-#  && cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang .. \
+#  && cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DGCC_INSTALL_PREFIX=/opt/rh/gcc-toolset-11/root/usr/bin .. \
 #  && make \
 #  && make install \
 #  && echo /usr/local/lib > /etc/ld.so.conf.d/openmp.conf \
