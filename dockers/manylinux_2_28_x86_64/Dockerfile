@@ -60,7 +60,7 @@ RUN mkdir /usr/local/src/clang \
  && make -j2 \
  && make install \
  # 'make install' doesn't install these libraries to a standard location
- && cp /usr/local/src/clang/llvm-project/build/lib/x86_64-unknown-linux-gnu/c++/* /usr/local/lib/ \
+ && cp /usr/local/src/clang/llvm-project/build/lib/x86_64-unknown-linux-gnu/c++/* /usr/local/lib/
 
 # Install PoCL
 RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
