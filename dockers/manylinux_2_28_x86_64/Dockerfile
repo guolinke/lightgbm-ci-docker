@@ -1,5 +1,8 @@
 FROM quay.io/pypa/manylinux_2_28_x86_64
 
+# ensure that libraries like libc++ built in this image can be found by the linker
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
+
 RUN yum update -y \
  && yum makecache --refresh
 
@@ -22,9 +25,10 @@ RUN curl -sL https://cmake.org/files/v3.23/cmake-3.23.1-linux-x86_64.sh -o cmake
 # - manylinux images use a custom sysroot foor the gcc toolchain, which doesn't play well with the precompiled llvm+clang available from https://github.com/llvm/llvm-project/releases
 # - there is not a precompiled llvm+clang available for x86_64 architecture + non-Ubuntu distributions
 #
-# [why are we building libcxx?]
+# [why are we building libcxx and lld?]
 #
-# - PoCL v1.8 compilation uses libc++ instead of libstdc++
+# - PoCL v1.8 compilation uses libc++ instead of libstdc++, and requires lld for linking
+# - 
 #
 # https://clang.llvm.org/get_started.html
 # https://llvm.org/docs/GettingStarted.html#compiling-the-llvm-suite-source-code
@@ -54,73 +58,36 @@ RUN mkdir /usr/local/src/clang \
      -G "Unix Makefiles" \
      ../llvm \
  && make -j2 \
- && make install
+ && make install \
+ # 'make install' doesn't install these libraries to a standard location
+ && cp /usr/local/src/clang/llvm-project/build/lib/x86_64-unknown-linux-gnu/c++/* /usr/local/lib/ \
 
-# ARG CLANG_VER=14.0.0
-# RUN curl -sL https://github.com/llvm/llvm-project/releases/download/llvmorg-$CLANG_VER/clang+llvm-$CLANG_VER-x86_64-linux-gnu-ubuntu-18.04.tar.xz -o clang.tar.xz \
-#  && tar -C /usr/local -xf clang.tar.xz --strip 1 \
-#  && curl -sL https://github.com/llvm/llvm-project/releases/download/llvmorg-$CLANG_VER/openmp-$CLANG_VER.src.tar.xz -o openmp.tar.xz \
-#  && tar -xf openmp.tar.xz \
-#  && cd openmp-$CLANG_VER.src \
-#  && mkdir build \
-#  && cd build \
-#  && cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DGCC_INSTALL_PREFIX=/opt/rh/gcc-toolset-11/root/usr/bin .. \
-#  && make \
-#  && make install \
-#  && echo /usr/local/lib > /etc/ld.so.conf.d/openmp.conf \
-#  && ldconfig \
-#  && cd ../.. \
-#  && rm clang.tar.xz \
-#  && rm openmp.tar.xz \
-#  && rm -rf openmp-$CLANG_VER.src
-
-# RUN curl -sL https://releases.llvm.org/$CLANG_VER/clang%2bllvm-$CLANG_VER-x86_64-linux-gnu-ubuntu-14.04.tar.xz -o clang.tar.xz \
-#  && tar -C /usr/local -xf clang.tar.xz --strip 1 \
-#  && curl -sL https://releases.llvm.org/$CLANG_VER/openmp-$CLANG_VER.src.tar.xz -o openmp.tar.xz \
-#  && tar -xf openmp.tar.xz \
-#  && cd openmp-$CLANG_VER.src \
-#  && mkdir build \
-#  && cd build \
-#  && cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang .. \
-#  && make \
-#  && make install \
-#  && echo /usr/local/lib > /etc/ld.so.conf.d/openmp.conf \
-#  && ldconfig \
-#  && cd ../.. \
-#  && rm clang.tar.xz \
-#  && rm openmp.tar.xz \
-#  && rm -rf openmp-$CLANG_VER.src
-
-#  # Install PoCL
-# RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
-#  && cmake \
-#     -B pocl/build \
-#     -S pocl \
-#     -DCMAKE_BUILD_TYPE=release \
-#     -DCMAKE_C_COMPILER=clang \
-#     -DCMAKE_CXX_COMPILER=clang++ \
-#     -DCMAKE_CXX_FLAGS=-stdlib=libc++ \
-#     -DPOCL_INSTALL_ICD_VENDORDIR=/etc/OpenCL/vendors \
-#     -DPOCL_DEBUG_MESSAGES=OFF \
-#     -DSTATIC_LLVM=ON \
-#     -DINSTALL_OPENCL_HEADERS=OFF \
-#     -DENABLE_SPIR=OFF \
-#     -DENABLE_POCLCC=OFF \
-#     -DENABLE_TESTS=OFF \
-#     -DENABLE_EXAMPLES=OFF \
-#  && cmake --build pocl/build -j4 \
-#  && cmake --install pocl/build
+# Install PoCL
+RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
+ && cmake \
+    -B pocl/build \
+    -S pocl \
+    -DCMAKE_BUILD_TYPE=release \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_CXX_FLAGS=-stdlib=libstdc++ \
+    -DPOCL_INSTALL_ICD_VENDORDIR=/etc/OpenCL/vendors \
+    -DPOCL_DEBUG_MESSAGES=OFF \
+    -DSTATIC_LLVM=ON \
+    -DINSTALL_OPENCL_HEADERS=OFF \
+    -DENABLE_SPIR=OFF \
+    -DENABLE_POCLCC=OFF \
+    -DENABLE_TESTS=OFF \
+    -DENABLE_EXAMPLES=OFF \
+ && cmake --build pocl/build -j4 \
+ && cmake --install pocl/build
 
 # # Install Java
-# RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9 \
-#  && add-apt-repository "deb http://repos.azulsystems.com/ubuntu stable main" -y \
-#  && apt-get update \
-#  && apt-get install -y --no-install-recommends \
-#     zulu-8 \
-#  && rm -rf /var/lib/apt/lists/*
+RUN yum install -y \
+      java-1.8.0-openjdk.x86_64
 
-# ENV JAVA_HOME_8_X64=/usr/lib/jvm/zulu-8-amd64
-# ENV JAVA_HOME=$JAVA_HOME_8_X64
+ENV JAVA_HOME_8_X64=/usr/lib/jvm/jre-1.8.0-openjdk/lib/
+ENV JAVA_HOME=$JAVA_HOME_8_X64
 
 # # Install SWIG
 # RUN curl -sLk https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4.0.2.tar.gz/download -o swig.tar.gz \
