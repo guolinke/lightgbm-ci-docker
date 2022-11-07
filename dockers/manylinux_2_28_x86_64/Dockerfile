@@ -49,6 +49,8 @@ RUN curl -sL https://cmake.org/files/v3.23/cmake-3.23.1-linux-x86_64.sh -o cmake
 # RUN yum install -y \
 #     ncurses-devel  # for libtinfo.so
 
+# /opt/rh/gcc-toolset-11/root/usr
+
 # building clang
 # pre-compiled clang+llvm is not available for AlmaLinux, so build it from source
 # https://clang.llvm.org/get_started.html
@@ -62,6 +64,7 @@ RUN mkdir /usr/local/src/clang \
  && cd build \
  && cmake \
      -DCMAKE_BUILD_TYPE=Release \
+     -DGCC_INSTALL_PREFIX=${DEVTOOLSET_ROOTPATH} \
      -DLLVM_BUILD_BENCHMARKS=OFF \
      -DLLVM_BUILD_DOCS=OFF \
      -DLLVM_BUILD_TESTS=OFF \
