@@ -76,7 +76,8 @@ RUN mkdir /usr/local/src/clang \
      -DLLVM_TARGETS_TO_BUILD="X86" \
      -G "Unix Makefiles" \
      ../llvm \
- && make -j2
+ && make -j2 \
+ && make install
 
 # ARG CLANG_VER=14.0.0
 # RUN curl -sL https://github.com/llvm/llvm-project/releases/download/llvmorg-$CLANG_VER/clang+llvm-$CLANG_VER-x86_64-linux-gnu-ubuntu-18.04.tar.xz -o clang.tar.xz \
