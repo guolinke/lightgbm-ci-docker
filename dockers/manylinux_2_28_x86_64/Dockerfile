@@ -3,59 +3,32 @@ FROM quay.io/pypa/manylinux_2_28_x86_64
 RUN yum update -y \
  && yum makecache --refresh
 
-# Install basic command-line utilities and essential build tools
-# RUN add-apt-repository ppa:git-core/ppa -y \
-#  && apt-get update \
-#  && apt-get install -y --no-install-recommends \
-#     apt-utils \
-#     build-essential \
-#     ca-certificates \
-#     curl \
-#     git \
-#     iputils-ping \
-#     jq \
-#     libcurl3 \
-#     libhwloc-dev \
-#     libicu52 \
-#     libssl1.0 \
-#     libtinfo-dev \
-#     libunwind8 \
-#     locales \
-#     netcat \
-#     ocl-icd-dev \
-#     pkg-config \
-#     sudo \
-#     unzip \
-#     wget \
-#     zip \
-#     zlib1g-dev \
-#  && rm -rf /var/lib/apt/lists/*
-
-# Setup the locale
-# ENV LANG en_US.UTF-8
-# ENV LC_ALL $LANG
-# RUN locale-gen $LANG \
-#  && update-locale
-
 # Install CMake
 RUN curl -sL https://cmake.org/files/v3.23/cmake-3.23.1-linux-x86_64.sh -o cmake.sh \
  && chmod +x cmake.sh \
  && ./cmake.sh --prefix=/usr/local --exclude-subdir \
  && rm -f ./cmake.sh
 
-# Install clang (NOTE: v11.0.0 requires GLIBC==2.29, too new for this image)
-#ARG CLANG_VER=10.0.0
-
-# RUN yum install -y \
-#     ncurses-devel  # for libtinfo.so
-
-# /opt/rh/gcc-toolset-11/root/usr
-
 # building clang
-# pre-compiled clang+llvm is not available for AlmaLinux, so build it from source
+#
+# [why v11.1.0]
+#
+# - LightGBM is incompatible with libomp v12 and v13 (https://github.com/microsoft/LightGBM/issues/4229)
+# - PoCL v1.8 requires LLVM+clang, but only supports v6-v13 (https://github.com/pocl/pocl/blob/3f420ef735672e439097d020db605778dbc4a6a1/cmake/LLVM.cmake#L209)
+# - so v11.x is the latest version that will work with the these constraints, and v11.1.0 was the last release in the v11 series
+#
+# [why from source?]
+#
+# - manylinux images use a custom sysroot foor the gcc toolchain, which doesn't play well with the precompiled llvm+clang available from https://github.com/llvm/llvm-project/releases
+# - there is not a precompiled llvm+clang available for x86_64 architecture + non-Ubuntu distributions
+#
+# [why are we building libcxx?]
+#
+# - PoCL v1.8 compilation uses libc++ instead of libstdc++
+#
 # https://clang.llvm.org/get_started.html
 # https://llvm.org/docs/GettingStarted.html#compiling-the-llvm-suite-source-code
-ARG CLANG_VER=14.0.6
+ARG CLANG_VER=11.1.0
 RUN mkdir /usr/local/src/clang \
  && cd /usr/local/src/clang \
  && git clone --depth 1 --branch llvmorg-$CLANG_VER https://github.com/llvm/llvm-project.git \
@@ -75,6 +48,7 @@ RUN mkdir /usr/local/src/clang \
      -DLLVM_ENABLE_DOXYGEN=OFF \
      -DLLVM_ENABLE_OCAMLDOC=OFF \
      -DLLVM_ENABLE_PROJECTS="clang;openmp" \
+     -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" \
      -DLLVM_ENABLE_SPHINX=OFF \
      -DLLVM_TARGETS_TO_BUILD="X86" \
      -G "Unix Makefiles" \
