@@ -4,7 +4,7 @@ FROM quay.io/pypa/manylinux_2_28_x86_64
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
 
 RUN yum update -y \
- && yum makecache --refresh
+ && yum clean all
 
 # Install CMake
 RUN curl -sL https://cmake.org/files/v3.23/cmake-3.23.1-linux-x86_64.sh -o cmake.sh \
@@ -14,7 +14,7 @@ RUN curl -sL https://cmake.org/files/v3.23/cmake-3.23.1-linux-x86_64.sh -o cmake
 
 # building clang
 #
-# [why v11.1.0]
+# [why v11.1.0?]
 #
 # - LightGBM is incompatible with libomp v12 and v13 (https://github.com/microsoft/LightGBM/issues/4229)
 # - PoCL v1.8 requires LLVM+clang, but only supports v6-v13 (https://github.com/pocl/pocl/blob/3f420ef735672e439097d020db605778dbc4a6a1/cmake/LLVM.cmake#L209)
@@ -27,8 +27,7 @@ RUN curl -sL https://cmake.org/files/v3.23/cmake-3.23.1-linux-x86_64.sh -o cmake
 #
 # [why are we building libcxx and lld?]
 #
-# - PoCL v1.8 compilation uses libc++ instead of libstdc++, and requires lld for linking
-# - 
+# - in case compilation with clang (e.g. of PoCL v1.8) uses libc++ instead of libstdc++
 #
 # https://clang.llvm.org/get_started.html
 # https://llvm.org/docs/GettingStarted.html#compiling-the-llvm-suite-source-code
@@ -60,7 +59,9 @@ RUN mkdir /usr/local/src/clang \
  && make -j2 \
  && make install \
  # 'make install' doesn't install these libraries to a standard location
- && cp /usr/local/src/clang/llvm-project/build/lib/x86_64-unknown-linux-gnu/c++/* /usr/local/lib/
+ && cp /usr/local/src/clang/llvm-project/build/lib/x86_64-unknown-linux-gnu/c++/* /usr/local/lib/ \
+ && cd "${HOME}" \
+ && rm -rf /usr/local/src/clang
 
 # Install PoCL
 RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
@@ -80,45 +81,43 @@ RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
     -DENABLE_TESTS=OFF \
     -DENABLE_EXAMPLES=OFF \
  && cmake --build pocl/build -j4 \
- && cmake --install pocl/build
+ && cmake --install pocl/build \
+ && rm -f ./compile_test*.bc \
+ && rm -f ./compile_test*.o \
+ && rm -rf ./pocl
 
-# # Install Java
+# Install Java
 RUN yum install -y \
-      java-1.8.0-openjdk.x86_64
+      java-1.8.0-openjdk.x86_64 \
+ && yum clean all
 
 ENV JAVA_HOME_8_X64=/usr/lib/jvm/jre-1.8.0-openjdk/lib/
 ENV JAVA_HOME=$JAVA_HOME_8_X64
 
-# # Install SWIG
-# RUN curl -sLk https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4.0.2.tar.gz/download -o swig.tar.gz \
-#  && tar -xzf swig.tar.gz \
-#  && cd swig-4.0.2 \
-#  && ./configure --prefix=/usr/local --without-pcre \
-#  && make \
-#  && make install \
-#  && cd .. \
-#  && rm swig.tar.gz \
-#  && rm -rf swig-4.0.2
+# Install SWIG
+RUN curl -sLk https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4.0.2.tar.gz/download -o swig.tar.gz \
+ && tar -xzf swig.tar.gz \
+ && cd swig-4.0.2 \
+ && ./configure --prefix=/usr/local --without-pcre \
+ && make \
+ && make install \
+ && cd .. \
+ && rm -f ./swig.tar.gz \
+ && rm -rf ./swig-4.0.2
 
-# # Install miniforge
-# RUN curl -sL "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh" -o miniforge.sh \
-#  && chmod +x miniforge.sh \
-#  && ./miniforge.sh -b -p /opt/miniforge \
-#  && rm miniforge.sh \
-#  && /opt/miniforge/bin/conda clean -a -y \
-#  && chmod -R 777 /opt/miniforge
+# Install miniforge
+RUN curl -sL "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh" -o miniforge.sh \
+ && chmod +x miniforge.sh \
+ && ./miniforge.sh -b -p /opt/miniforge \
+ && rm -f ./miniforge.sh \
+ && /opt/miniforge/bin/conda clean -a -y \
+ && chmod -R 777 /opt/miniforge
 
-# ENV CONDA=/opt/miniforge/
+ENV CONDA=/opt/miniforge/
 
-# # Clean system
-# RUN apt-get clean \
-#  && rm -rf /var/lib/apt/lists/* \
-#  && rm -rf /etc/apt/sources.list.d/* \
-#  && rm -rf /tmp/*
+WORKDIR /vsts
 
-# WORKDIR /vsts
+COPY ./start_azure.sh .
+RUN chmod +x start_azure.sh
 
-# COPY ./start_azure.sh .
-# RUN chmod +x start_azure.sh
-
-# CMD ["./start_azure.sh"]
+CMD ["./start_azure.sh"]
