@@ -88,7 +88,7 @@ RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
 
 # Install Java
 RUN yum install -y \
-      java-1.8.0-openjdk.x86_64 \
+      java-1.8.0-openjdk-devel.x86_64 \
  && yum clean all
 
 ENV JAVA_HOME_8_X64=/usr/lib/jvm/jre-1.8.0-openjdk
