@@ -4,6 +4,8 @@ FROM quay.io/pypa/manylinux_2_28_x86_64
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
 
 RUN yum update -y \
+ && yum install -y \
+    sudo \
  && yum clean all
 
 # Install CMake
