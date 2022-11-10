@@ -91,7 +91,7 @@ RUN yum install -y \
       java-1.8.0-openjdk.x86_64 \
  && yum clean all
 
-ENV JAVA_HOME_8_X64=/usr/lib/jvm/jre-1.8.0-openjdk/lib/
+ENV JAVA_HOME_8_X64=/usr/lib/jvm/jre-1.8.0-openjdk
 ENV JAVA_HOME=$JAVA_HOME_8_X64
 
 # Install SWIG
