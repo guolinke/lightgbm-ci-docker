@@ -60,11 +60,15 @@ RUN mkdir /usr/local/src/clang \
      ../llvm \
  && make -j2 \
  && make install \
- # 'make install' doesn't install these libraries to a standard location
- && ls /usr/local/src/clang/llvm-project/build/lib/x86_64-unknown-linux-gnu/c++ > /usr/local/src/cpp-dir-ls.txt \
- && cp /usr/local/src/clang/llvm-project/build/lib/x86_64-unknown-linux-gnu/c++/* /usr/local/lib/
- # && cd "${HOME}"
- # && rm -rf /usr/local/src/clang
+ # `make install` places libc++ into a different directory,
+ # symlinking it into /usr/local/lib so the linker can find it
+ && cp -s /usr/local/lib/x86_64-unknown-linux-gnu/c++/* /usr/local/lib/ \
+ # manylinux images already come with an ldconfig rule pointing at /usr/local/lib,
+ # but just doing this explicitly to be safe in case they remove that in the future
+ && echo /usr/local/lib > /etc/ld.so.conf.d/llvm.conf \
+ && ldconfig \
+ && cd "${HOME}" \
+ && rm -rf /usr/local/src/clang
 
 # Install PoCL
 RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
