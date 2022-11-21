@@ -9,13 +9,23 @@ on:
 
 jobs:
   push_to_docker_hub:
-    name: Push Docker image to Docker Hub
+    name: ${{ matrix.docker_image}} (${{ matrix.arch }}) - build and push
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - docker_image: ubuntu-14.04
+            arch: linux/amd64
+          - docker_image: manylinux2014_aarch64
+            arch: linux/arm64
+          - docker_image: manylinux_2_28_x86_64
+            arch: linux/amd64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Log in to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -24,12 +34,16 @@ jobs:
         shell: bash
         run: |
             branch=${GITHUB_REF#refs/heads/}
-            docker_tag=ubuntu-14.04-${branch}
+            docker_tag=${{ matrix.docker_image }}-${branch}
             docker_tag=${docker_tag%-master}
             echo "::set-output name=docker_tag::${docker_tag}"
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        if: matrix.arch != 'linux/amd64'
       - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
-          context: ${{ github.workspace }}/dockers/ubuntu-14.04/
+          context: ${{ github.workspace }}/dockers/${{ matrix.docker_image }}/
           push: true
+          platforms: ${{ matrix.arch }}
           tags: lightgbm/vsts-agent:${{ steps.tag.outputs.docker_tag }}
