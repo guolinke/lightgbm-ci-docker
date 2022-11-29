@@ -1,7 +1,7 @@
 FROM quay.io/pypa/manylinux_2_28_x86_64
 
 # ensure that libraries like libc++ built in this image can be found by the linker
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib:/usr/local/lib64"
+ENV LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:${LD_LIBRARY_PATH}"
 
 RUN yum update -y \
  && yum install -y \
@@ -72,6 +72,10 @@ RUN mkdir /usr/local/src/clang \
 
 # Install PoCL
 RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
+ && yum update -y \
+ && yum install -y \
+    ocl-icd-devel \
+    opencl-headers \
  && cmake \
     -B pocl/build \
     -S pocl \
@@ -91,7 +95,8 @@ RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
  && cmake --install pocl/build \
  && rm -f ./compile_test*.bc \
  && rm -f ./compile_test*.o \
- && rm -rf ./pocl
+ && rm -rf ./pocl \
+ && yum clean all
 
 # Install Java
 RUN yum install -y \
