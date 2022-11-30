@@ -1,7 +1,7 @@
 FROM quay.io/pypa/manylinux_2_28_x86_64
 
 # ensure that libraries like libc++ built in this image can be found by the linker
-ENV LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:${LD_LIBRARY_PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/lib64:${LD_LIBRARY_PATH}:/usr/local/lib"
 
 RUN yum update -y \
  && yum install -y \
