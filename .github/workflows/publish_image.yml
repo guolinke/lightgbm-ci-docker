@@ -16,8 +16,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - docker_image: ubuntu-14.04
-            arch: linux/amd64
           - docker_image: manylinux2014_aarch64
             arch: linux/arm64
           - docker_image: manylinux_2_28_x86_64
@@ -44,7 +42,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ github.workspace }}/dockers/${{ matrix.docker_image }}/
+          context: ${{ github.workspace }}/images/${{ matrix.docker_image }}/
           push: true
           platforms: ${{ matrix.arch }}
           tags: lightgbm/vsts-agent:${{ steps.tag.outputs.docker_tag }}
