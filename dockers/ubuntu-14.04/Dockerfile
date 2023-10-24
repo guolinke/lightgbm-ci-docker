@@ -16,6 +16,7 @@ RUN add-apt-repository ppa:git-core/ppa -y \
     ca-certificates \
     curl \
     git \
+    gnupg \
     iputils-ping \
     jq \
     libcurl3 \
@@ -65,7 +66,7 @@ RUN curl -sL https://releases.llvm.org/$CLANG_VER/clang%2bllvm-$CLANG_VER-x86_64
  && rm clang.tar.xz \
  && rm openmp.tar.xz \
  && rm -rf openmp-$CLANG_VER.src
- 
+
  # Install PoCL
 RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
  && cmake \
@@ -87,8 +88,10 @@ RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
  && cmake --install pocl/build
 
 # Install Java
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9 \
- && add-apt-repository "deb http://repos.azulsystems.com/ubuntu stable main" -y \
+# ref: https://docs.azul.com/core/zulu-openjdk/install/debian
+RUN curl -s https://repos.azul.com/azul-repo.key | sudo gpg --dearmor -o /usr/share/keyrings/azul.gpg \
+ && echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" | sudo tee /etc/apt/sources.list.d/zulu.list \
+ && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys B1998361219BD9C9 \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
     zulu-8 \
