@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - docker_image: manylinux2014_aarch64
+          - docker_image: manylinux_2_28_aarch64
             arch: linux/arm64
           - docker_image: manylinux_2_28_x86_64
             arch: linux/amd64
@@ -40,7 +40,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
         if: matrix.arch != 'linux/amd64'
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ github.workspace }}/images/${{ matrix.docker_image }}/
           push: true

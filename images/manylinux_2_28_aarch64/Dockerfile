@@ -1,23 +1,14 @@
-FROM quay.io/pypa/manylinux2014_aarch64
+FROM quay.io/pypa/manylinux_2_28_aarch64
 
-RUN yum update \
+RUN yum update -y \
  && yum install -y \
     epel-release \
     gcc-c++ \
     hwloc-devel \
+    ocl-icd-devel \
     sudo \
  && yum clean all \
  && rm -rf /var/cache/yum
-
-RUN yum install -y \
-    llvm-toolset-7.0-clang-devel \
-    llvm-toolset-7.0-llvm-devel \
-    ocl-icd-devel \
- && yum clean all \
- && rm -rf /var/cache/yum
-
-ENV LD_LIBRARY_PATH "/opt/rh/llvm-toolset-7.0/root/usr/lib64:${LD_LIBRARY_PATH}"
-ENV PATH "/opt/rh/llvm-toolset-7.0/root/usr/bin:${PATH}"
 
 RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
  && cmake \
