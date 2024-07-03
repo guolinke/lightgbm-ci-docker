@@ -5,9 +5,10 @@ RUN yum update -y \
     epel-release \
     gcc-c++ \
     hwloc-devel \
-    llvm-toolset \
     ocl-icd-devel \
     sudo \
+ && yum module install -y \
+      llvm-toolset
  && yum clean all \
  && rm -rf /var/cache/yum
 
