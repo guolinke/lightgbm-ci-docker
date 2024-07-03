@@ -5,6 +5,7 @@ RUN yum update -y \
     epel-release \
     gcc-c++ \
     hwloc-devel \
+    llvm-toolset \
     ocl-icd-devel \
     sudo \
  && yum clean all \
