@@ -8,7 +8,7 @@ RUN yum update -y \
     ocl-icd-devel \
     sudo \
  && yum module install -y \
-      llvm-toolset
+      llvm-toolset \
  && yum clean all \
  && rm -rf /var/cache/yum
 
