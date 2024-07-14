@@ -1,6 +1,6 @@
 FROM quay.io/pypa/manylinux2014_aarch64
 
-RUN yum update \
+RUN yum update -y \
  && yum install -y \
     epel-release \
     gcc-c++ \
@@ -16,8 +16,8 @@ RUN yum install -y \
  && yum clean all \
  && rm -rf /var/cache/yum
 
-ENV LD_LIBRARY_PATH "/opt/rh/llvm-toolset-7.0/root/usr/lib64:${LD_LIBRARY_PATH}"
-ENV PATH "/opt/rh/llvm-toolset-7.0/root/usr/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/opt/rh/llvm-toolset-7.0/root/usr/lib64:${LD_LIBRARY_PATH}"
+ENV PATH="/opt/rh/llvm-toolset-7.0/root/usr/bin:${PATH}"
 
 RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
  && cmake \
@@ -36,4 +36,7 @@ RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
     -DENABLE_EXAMPLES=OFF \
     -DLLC_HOST_CPU=generic \
  && cmake --build pocl/build -j4 \
- && sudo cmake --install pocl/build
+ && sudo cmake --install pocl/build \
+ && rm -f ./compile_test*.bc \
+ && rm -f ./compile_test*.o \
+ && rm -rf ./pocl
