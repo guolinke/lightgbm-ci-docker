@@ -6,7 +6,8 @@ ENV LD_LIBRARY_PATH="/usr/local/lib64:${LD_LIBRARY_PATH}:/usr/local/lib"
 RUN yum update -y \
  && yum install -y \
     sudo \
- && yum clean all
+ && yum clean all \
+ && rm -rf /var/cache/yum
 
 # Install CMake
 RUN curl -sL https://cmake.org/files/v3.23/cmake-3.23.1-linux-x86_64.sh -o cmake.sh \
@@ -58,7 +59,7 @@ RUN mkdir /usr/local/src/clang \
      -DLLVM_TARGETS_TO_BUILD="X86" \
      -G "Unix Makefiles" \
      ../llvm \
- && make -j2 \
+ && make -j4 \
  && make install \
  # `make install` places libc++ into a different directory,
  # symlinking it into /usr/local/lib so the linker can find it
@@ -96,26 +97,28 @@ RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
  && rm -f ./compile_test*.bc \
  && rm -f ./compile_test*.o \
  && rm -rf ./pocl \
- && yum clean all
+ && yum clean all \
+ && rm -rf /var/cache/yum
 
 # Install Java
 RUN yum install -y \
       java-1.8.0-openjdk-devel.x86_64 \
- && yum clean all
+ && yum clean all \
+ && rm -rf /var/cache/yum
 
 ENV JAVA_HOME_8_X64=/usr/lib/jvm/java
 ENV JAVA_HOME=$JAVA_HOME_8_X64
 
 # Install SWIG
-RUN curl -sLk https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/swig-4.0.2.tar.gz/download -o swig.tar.gz \
+RUN curl -sL https://sourceforge.net/projects/swig/files/swig/swig-4.2.1/swig-4.2.1.tar.gz/download -o swig.tar.gz \
  && tar -xzf swig.tar.gz \
- && cd swig-4.0.2 \
+ && cd swig-4.2.1 \
  && ./configure --prefix=/usr/local --without-pcre \
- && make \
+ && make -j4 \
  && make install \
  && cd .. \
  && rm -f ./swig.tar.gz \
- && rm -rf ./swig-4.0.2
+ && rm -rf ./swig-4.2.1
 
 # Install miniforge
 RUN curl -sL "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh" -o miniforge.sh \
