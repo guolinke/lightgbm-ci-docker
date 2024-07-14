@@ -1,6 +1,6 @@
 FROM quay.io/pypa/manylinux2014_aarch64
 
-RUN yum update \
+RUN yum update -y \
  && yum install -y \
     epel-release \
     gcc-c++ \
