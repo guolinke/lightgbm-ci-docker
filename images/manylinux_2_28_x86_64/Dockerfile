@@ -92,7 +92,7 @@ RUN git clone --depth 1 --branch v1.8 https://github.com/pocl/pocl.git \
     -DENABLE_POCLCC=OFF \
     -DENABLE_TESTS=OFF \
     -DENABLE_EXAMPLES=OFF \
-    -DLLC_HOST_CPU=generic \
+    -DLLC_HOST_CPU="x86-64" \
  && cmake --build pocl/build -j4 \
  && cmake --install pocl/build \
  && rm -f ./compile_test*.bc \
