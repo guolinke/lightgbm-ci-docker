@@ -10,7 +10,7 @@ RUN yum update -y \
  && rm -rf /var/cache/yum
 
 # Install CMake
-RUN curl -sL https://cmake.org/files/v3.23/cmake-3.23.1-linux-x86_64.sh -o cmake.sh \
+RUN curl -sL https://cmake.org/files/v3.30/cmake-3.30.1-linux-x86_64.sh -o cmake.sh \
  && chmod +x cmake.sh \
  && ./cmake.sh --prefix=/usr/local --exclude-subdir \
  && rm -f ./cmake.sh
@@ -111,15 +111,16 @@ ENV JAVA_HOME_8_X64=/usr/lib/jvm/java
 ENV JAVA_HOME=$JAVA_HOME_8_X64
 
 # Install SWIG
-RUN curl -sL https://sourceforge.net/projects/swig/files/swig/swig-4.2.1/swig-4.2.1.tar.gz/download -o swig.tar.gz \
+ARG SWIG_VER=4.2.1
+RUN curl -sL https://sourceforge.net/projects/swig/files/swig/swig-$SWIG_VER/swig-$SWIG_VER.tar.gz/download -o swig.tar.gz \
  && tar -xzf swig.tar.gz \
- && cd swig-4.2.1 \
+ && cd swig-$SWIG_VER \
  && ./configure --prefix=/usr/local --without-pcre \
  && make -j4 \
  && make install \
  && cd .. \
  && rm -f ./swig.tar.gz \
- && rm -rf ./swig-4.2.1
+ && rm -rf ./swig-$SWIG_VER
 
 # Install miniforge
 RUN curl -sL "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh" -o miniforge.sh \
