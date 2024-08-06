@@ -10,7 +10,8 @@ RUN yum update -y \
  && rm -rf /var/cache/yum
 
 # Install CMake
-RUN curl -sL https://cmake.org/files/v3.30/cmake-3.30.1-linux-x86_64.sh -o cmake.sh \
+ARG CMAKE_VER=3.30.1
+RUN curl -sL https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.sh -o cmake.sh \
  && chmod +x cmake.sh \
  && ./cmake.sh --prefix=/usr/local --exclude-subdir \
  && rm -f ./cmake.sh
